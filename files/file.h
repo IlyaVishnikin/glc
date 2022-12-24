@@ -39,9 +39,9 @@ struct _GlcFile
 	char*  (*get_text)		 (GlcFile* self, GlcFileExitStatus* error); /* return text that file contains */
 	size_t (*get_size)		 (GlcFile* self, GlcFileExitStatus* error); /* return size of the file in bytes */
 
-	void (*clear)(GlcFile* self, 					 GlcFileExitStatus* error); /* clear all content in the file */
-	void (*puts) (GlcFile* self, const char* string, GlcFileExitStatus* error); /* adds string into the file */
-	void (*gets) (GlcFile* self, int line_number,    GlcFileExitStatus* error); /* return string at @line_number position in the file */
+	void (*clear)(GlcFile* self, 					 			      GlcFileExitStatus* error); /* clear all content in the file */
+	void (*puts) (GlcFile* self, const char* string, int line_number, GlcFileExitStatus* error); /* adds string into the file */
+	void (*gets) (GlcFile* self, 					 int line_number, GlcFileExitStatus* error); /* return string at @line_number position in the file */
 
 	void (*remove)(GlcFile* self, GlcFileExitStatus* error); /* remove file. If file is not exists that nothing happens */
 	void (*create)(GlcFile* self, GlcFileExitStatus* error); /* create file. If file already exists than nothing happens */
