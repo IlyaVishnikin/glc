@@ -38,6 +38,7 @@ struct _GlcFile
 	char*  (*get_group)		 (GlcFile* self, GlcFileExitStatus* error); /* return file group */
 	char*  (*get_text)		 (GlcFile* self, GlcFileExitStatus* error); /* return text that file contains */
 	size_t (*get_size)		 (GlcFile* self, GlcFileExitStatus* error); /* return size of the file in bytes */
+	size_t (*get_lines_count)(GlcFile* self, GlcFileExitStatus* error);
 
 	void (*clear)(GlcFile* self, 					 			      GlcFileExitStatus* error); /* clear all content in the file */
 	void (*puts) (GlcFile* self, const char* string, int line_number, GlcFileExitStatus* error); /* adds string into the file */
