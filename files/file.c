@@ -1,5 +1,6 @@
 #include <grp.h>
 #include <pwd.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,6 +131,41 @@ glc_file_get_group(GlcFile* self,
 	return group ? strdup(group->gr_name) : NULL;
 }
 
+char*
+glc_file_get_text(GlcFile* self,
+				  GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return NULL;
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return NULL;
+	}
+
+	if (!self->is_readable(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_READABLE;
+		return NULL;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	FILE* file = fopen(self->path, "r");
+	char* file_text = malloc(sizeof(char) * (self->get_size(self, NULL) + 1));
+	file_text[0] = '\0';
+
+	char current_char;
+	while ((current_char = getc(file)) != EOF) strncat(file_text, &current_char, 1);
+	file_text[self->get_size(self, NULL)] = '\0';
+
+	fclose(file);
+	return file_text;
+}
+
 size_t
 glc_file_get_size(GlcFile* self,
 				  GlcFileExitStatus* error)
@@ -169,7 +205,7 @@ glc_file_new(const char* path)
 	self->get_folder 	  = glc_file_get_folder;
 	self->get_owner 	  = glc_file_get_owner;
 	self->get_group 	  = glc_file_get_group;
-
+	self->get_text 		  = glc_file_get_text;
 	self->get_size 		  = glc_file_get_size;
 
 	/* fields */
