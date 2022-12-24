@@ -130,6 +130,28 @@ glc_file_get_group(GlcFile* self,
 	return group ? strdup(group->gr_name) : NULL;
 }
 
+size_t
+glc_file_get_size(GlcFile* self,
+				  GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return 0;
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return 0;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	struct stat file_stat;
+	stat(self->path, &file_stat);
+	return file_stat.st_size;
+}
+
 GlcFile*
 glc_file_new(const char* path)
 {
@@ -147,6 +169,8 @@ glc_file_new(const char* path)
 	self->get_folder 	  = glc_file_get_folder;
 	self->get_owner 	  = glc_file_get_owner;
 	self->get_group 	  = glc_file_get_group;
+
+	self->get_size 		  = glc_file_get_size;
 
 	/* fields */
 	self->path = strdup(path);
