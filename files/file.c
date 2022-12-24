@@ -1,3 +1,4 @@
+#include <grp.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -107,6 +108,28 @@ glc_file_get_owner(GlcFile* self,
 	return pwd ? strdup(pwd->pw_name) : NULL;
 }
 
+char*
+glc_file_get_group(GlcFile* self,
+				   GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return NULL;
+	}
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return NULL;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	struct stat file_stat;
+	stat(self->path, &file_stat);
+	struct group* group = getgrgid(file_stat.st_gid);
+	return group ? strdup(group->gr_name) : NULL;
+}
+
 GlcFile*
 glc_file_new(const char* path)
 {
@@ -123,6 +146,7 @@ glc_file_new(const char* path)
 	self->get_modify_time = glc_file_get_modify_time;
 	self->get_folder 	  = glc_file_get_folder;
 	self->get_owner 	  = glc_file_get_owner;
+	self->get_group 	  = glc_file_get_group;
 
 	/* fields */
 	self->path = strdup(path);
