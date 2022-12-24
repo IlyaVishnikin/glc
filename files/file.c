@@ -1,9 +1,9 @@
+#include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-
-#include <stdio.h>
+#include <sys/types.h>
 
 #include "file.h"
 
@@ -61,7 +61,6 @@ glc_file_get_modify_time(GlcFile* self,
 	return file_stat.st_mtime;
 }
 
-
 char*
 glc_file_get_folder(GlcFile* self,
 					GlcFileExitStatus* error)
@@ -85,6 +84,28 @@ glc_file_get_folder(GlcFile* self,
 	return NULL;
 }
 
+char*
+glc_file_get_owner(GlcFile* self,
+				   GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return NULL;
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return NULL;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	struct stat file_stat;
+	stat(self->path, &file_stat);
+	struct passwd* pwd = getpwuid(file_stat.st_uid); 
+	return pwd ? strdup(pwd->pw_name) : NULL;
+}
 
 GlcFile*
 glc_file_new(const char* path)
@@ -101,6 +122,7 @@ glc_file_new(const char* path)
 
 	self->get_modify_time = glc_file_get_modify_time;
 	self->get_folder 	  = glc_file_get_folder;
+	self->get_owner 	  = glc_file_get_owner;
 
 	/* fields */
 	self->path = strdup(path);
