@@ -4,11 +4,20 @@
 #include <time.h>
 #include <stdbool.h>
 
+#ifndef GLC_FILE_PATH_SEPARATOR
+	#ifdef _WIN32
+		#define GLC_FILE_PATH_SEPARATOR '\\'
+	#else
+		#define GLC_FILE_PATH_SEPARATOR '/'
+	#endif
+#endif
+
 typedef enum _GlcFileExitStatus GlcFileExitStatus;
 enum _GlcFileExitStatus
 {
 	GLC_FILE_EXIT_STATUS_OK,
 	GLC_FILE_EXIT_STATUS_SELF_IS_NULL,
+	GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS,
 };
 
 typedef struct _GlcFile GlcFile;
