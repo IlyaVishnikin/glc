@@ -188,6 +188,30 @@ glc_file_get_size(GlcFile* self,
 	return file_stat.st_size;
 }
 
+void
+glc_file_clear(GlcFile* self,
+			   GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return;
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return;
+	}
+
+	if (!self->is_writable(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_WRITABLE;
+	}
+
+	fclose(fopen(self->path, "w"));	
+}
+
 GlcFile*
 glc_file_new(const char* path)
 {
@@ -207,6 +231,8 @@ glc_file_new(const char* path)
 	self->get_group 	  = glc_file_get_group;
 	self->get_text 		  = glc_file_get_text;
 	self->get_size 		  = glc_file_get_size;
+
+	self->clear = glc_file_clear;
 
 	/* fields */
 	self->path = strdup(path);
