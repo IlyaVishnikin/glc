@@ -44,8 +44,9 @@ glc_file_get_modify_time(GlcFile* self,
 	struct stat file_stat;
 	stat(self->path, &file_stat);
 	if (error) *error = self ? GLC_FILE_EXIT_STATUS_OK : GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
-	return file_stat.st_mtime : (time_t)(-1);
+	return self ? file_stat.st_mtime : (time_t)(-1);
 }
+
 
 GlcFile*
 glc_file_new(const char* path)
