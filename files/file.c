@@ -41,16 +41,10 @@ time_t
 glc_file_get_modify_time(GlcFile* self,
 						 GlcFileExitStatus* error)
 {
-	if (!self)
-	{
-		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
-		return (time_t)(-1);
-	}
-
 	struct stat file_stat;
 	stat(self->path, &file_stat);
-	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
-	return file_stat.st_mtime;
+	if (error) *error = self ? GLC_FILE_EXIT_STATUS_OK : GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+	return file_stat.st_mtime : (time_t)(-1);
 }
 
 GlcFile*
