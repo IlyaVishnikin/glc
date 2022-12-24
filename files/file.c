@@ -3,6 +3,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <stdio.h>
+
 #include "file.h"
 
 bool
@@ -41,12 +43,23 @@ time_t
 glc_file_get_modify_time(GlcFile* self,
 						 GlcFileExitStatus* error)
 {
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return (time_t)(-1);
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return (time_t)(-1);
+	}
+
 	struct stat file_stat;
 	stat(self->path, &file_stat);
-	if (error) *error = self ? GLC_FILE_EXIT_STATUS_OK : GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
-	return self ? file_stat.st_mtime : (time_t)(-1);
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	return file_stat.st_mtime;
 }
-
 
 GlcFile*
 glc_file_new(const char* path)
