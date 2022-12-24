@@ -212,6 +212,39 @@ glc_file_clear(GlcFile* self,
 	fclose(fopen(self->path, "w"));	
 }
 
+size_t
+glc_get_lines_count(GlcFile* self,
+					GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return 0;
+	}
+
+	if (!self->is_exists(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_EXISTS;
+		return 0;
+	}
+
+	if (!self->is_readable(self, NULL))
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_FILE_NOT_READABLE;
+		return 0;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	FILE* file = fopen(self->path, "r");
+
+	size_t lines_count = 0;
+	char current_char;
+	while ((current_char = getc(file)) != EOF) if (current_char == '\n') current_char++;
+
+	fclose(file);
+	return lines_count;
+}
+
 GlcFile*
 glc_file_new(const char* path)
 {
