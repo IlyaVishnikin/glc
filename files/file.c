@@ -61,6 +61,31 @@ glc_file_get_modify_time(GlcFile* self,
 	return file_stat.st_mtime;
 }
 
+
+char*
+glc_file_get_folder(GlcFile* self,
+					GlcFileExitStatus* error)
+{
+	if (!self)
+	{
+		if (error) *error = GLC_FILE_EXIT_STATUS_SELF_IS_NULL;
+		return NULL;
+	}
+
+	if (error) *error = GLC_FILE_EXIT_STATUS_OK;
+	for (int i = strlen(self->path)-1; i >= 0; i--)
+		if (self->path[i] == GLC_FILE_PATH_SEPARATOR)
+		{
+			char folder_path[i+2];
+			strncpy(folder_path, self->path, i+1);
+			folder_path[i+1] = '\0';
+			return strdup(folder_path);
+		}
+
+	return NULL;
+}
+
+
 GlcFile*
 glc_file_new(const char* path)
 {
@@ -75,6 +100,7 @@ glc_file_new(const char* path)
 	self->is_executable = glc_file_is_executable;
 
 	self->get_modify_time = glc_file_get_modify_time;
+	self->get_folder 	  = glc_file_get_folder;
 
 	/* fields */
 	self->path = strdup(path);
